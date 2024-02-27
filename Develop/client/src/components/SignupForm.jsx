@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
-
-import { createUser } from '../utils/API';
+import { useMutation } from '@apollo/client'; // Import the useMutation hook
+import { ADD_USER } from '../utils/mutations'; // Import the ADD_USER mutation
 import Auth from '../utils/auth';
 
 const SignupForm = () => {
-  // set initial form state
   const [userFormData, setUserFormData] = useState({ username: '', email: '', password: '' });
-  // set state for form validation
   const [validated] = useState(false);
-  // set state for alert
   const [showAlert, setShowAlert] = useState(false);
+
+  // Define the addUser mutation using the useMutation hook
+  const [addUserMutation] = useMutation(ADD_USER);
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -19,8 +19,6 @@ const SignupForm = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-
-    // check if form has everything (as per react-bootstrap docs)
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
@@ -28,14 +26,12 @@ const SignupForm = () => {
     }
 
     try {
-      const response = await createUser(userFormData);
+      // Call the addUserMutation function instead of createUser function
+      const { data } = await addUserMutation({
+        variables: { ...userFormData }
+      });
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const { token, user } = await response.json();
-      console.log(user);
+      const { token, user } = data.addUser;
       Auth.login(token);
     } catch (err) {
       console.error(err);
@@ -51,9 +47,7 @@ const SignupForm = () => {
 
   return (
     <>
-      {/* This is needed for the validation functionality above */}
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
-        {/* show alert if server response is bad */}
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
           Something went wrong with your signup!
         </Alert>
