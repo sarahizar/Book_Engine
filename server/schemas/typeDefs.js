@@ -1,4 +1,5 @@
 const { gql } = require('apollo-server-express');
+const { Book, User } = require('./schema');
 
 const typeDefs = gql`
   input BookInput {
@@ -44,4 +45,6 @@ const typeDefs = gql`
   }
 `;
 
-module.exports = typeDefs
+const resolvers = require('./resolvers');
+
+module.exports = { typeDefs, resolvers };

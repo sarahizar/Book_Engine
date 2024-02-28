@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { Book, User } = require('./schema');
 const { signToken, AuthenticationError } = require('../utils/auth');
 
 const resolvers = {
